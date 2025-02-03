@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carterclicker</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #2d3848;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .game-container {
+            background-color: #3a4555;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 40px;
+        }
+
+        .click-section {
+            position: relative;
+            background-color: #4a5565;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        #carter-face {
+            width: 180px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-top: 50px;
+            z-index: 2;
+            position: relative;
+        }
+
+        #carter-face:active {
+            transform: scale(0.95);
+        }
+
+        .counter {
+            font-size: 28px;
+            margin: 20px 0;
+            color: #e0e0e0;
+            text-align: center;
+            display: block;
+        }
+
+        .counter span {
+            display: block;
+            color: white;
+            background-color: #4a90e2;
+            padding: 5px 15px;
+            border-radius: 5px;
+            margin: 10px auto 0;
+            width: fit-content;
+        }
+
+        .orange-juice {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 33%;
+            background: linear-gradient(to top, #FFA726, #FF9800);
+            animation: wave 3s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes wave {
+            0%, 100% { 
+                clip-path: polygon(0 40%, 20% 35%, 40% 45%, 60% 30%, 80% 40%, 100% 35%, 100% 100%, 0 100%);
+                transform: translateX(0);
+            }
+            50% { 
+                clip-path: polygon(0 35%, 20% 40%, 40% 30%, 60% 45%, 80% 35%, 100% 40%, 100% 100%, 0 100%);
+                transform: translateX(10px);
+            }
+        }
+
+        .store {
+            background-color: #3a4555;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .upgrade {
+            background-color: rgba(58, 69, 85, 0.9);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+            border: 1px solid #5a6777;
+        }
+
+        .upgrade:hover {
+            transform: translateX(10px);
+            background-color: #475467;
+        }
+
+        .upgrade button {
+            background-color: #5a8fcc;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: background-color 0.2s;
+        }
+
+        .upgrade button:disabled {
+            background-color: #4a5565;
+            cursor: not-allowed;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            opacity: 0.8;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        .category-title {
+            color: #6ab0f3;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #5a6777;
+            padding-bottom: 10px;
+        }
+
+        .upgrade p, .upgrade h3 {
+            color: white;
+            margin: 5px 0;
+        }
+
+        .floating-orange {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            animation: float 6s infinite linear;
+            opacity: 0.8;
+            z-index: 3;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100px, -100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="main-content">
+            <div class="click-section">
+                <div class="counter">Carters<br><span id="counter">0</span></div>
+                <img src="https://i.imgur.com/4cw9VPA.png" alt="Carter" id="carter-face">
+                <div class="orange-juice"></div>
+                <div id="oranges-container"></div>
+            </div>
+            
+            <div class="store">
+                <div class="category-title">Upgrades</div>
+                <div class="upgrade">
+                    <div>
+                        <h3>Multiplier</h3>
+                        <p>2x per click (Current: <span id="multiplier-value">1</span>x)</p>
+                        <p>Cost: <span id="multiplier-cost">50</span> Carters</p>
+                    </div>
+                    <button onclick="buyUpgrade('multiplier')" id="multiplier-button">Buy</button>
+                </div>
+
+                <div class="upgrade">
+                    <div>
+                        <h3>Auto-Clicker</h3>
+                        <p>1 Carter/second</p>
+                        <p>Cost: <span id="autoclicker-cost">100</span> Carters</p>
+                    </div>
+                    <button onclick="buyUpgrade('autoclicker')" id="autoclicker-button">Buy</button>
+                </div>
+
+                <div class="category-title" style="margin-top: 30px;">Investments</div>
+                <div class="upgrade">
+                    <div>
+                        <h3>Carter Farm</h3>
+                        <p>10 Carters/second</p>
+                        <p>Cost: <span id="farm-cost">500</span> Carters</p>
+                    </div>
+                    <button onclick="buyUpgrade('farm')" id="farm-button">Buy</button>
+                </div>
+
+                <div class="upgrade">
+                    <div>
+                        <h3>Boxing Club</h3>
+                        <p>20 Carters/second</p>
+                        <p>Cost: <span id="boxing-cost">2000</span> Carters</p>
+                    </div>
+                    <button onclick="buyUpgrade('boxing')" id="boxing-button">Buy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carters = 0;
+        let multiplier = 1;
+        let multiplierCost = 50;
+        let autoClickers = 0;
+        let autoClickerCost = 100;
+        let farms = 0;
+        let farmCost = 500;
+        let boxingClubs = 0;
+        let boxingCost = 2000;
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = `+${multiplier}`;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+
+        function createFloatingOrange() {
+            const container = document.getElementById('oranges-container');
+            const orange = document.createElement('div');
+            orange.className = 'floating-orange';
+            orange.textContent = '🍊';
+            
+            const startX = 50 + Math.random() * 100;
+            const startY = 50 + Math.random() * 100;
+            orange.style.left = `${startX}px`;
+            orange.style.top = `${startY}px`;
+            
+            container.appendChild(orange);
+            
+            setTimeout(() => {
+                orange.remove();
+            }, 6000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('counter').textContent = Math.floor(carters);
+            document.getElementById('multiplier-value').textContent = multiplier;
+            document.getElementById('multiplier-cost').textContent = Math.floor(multiplierCost);
+            document.getElementById('autoclicker-cost').textContent = Math.floor(autoClickerCost);
+            document.getElementById('farm-cost').textContent = Math.floor(farmCost);
+            document.getElementById('boxing-cost').textContent = Math.floor(boxingCost);
+
+            document.getElementById('multiplier-button').disabled = carters < multiplierCost;
+            document.getElementById('autoclicker-button').disabled = carters < autoClickerCost;
+            document.getElementById('farm-button').disabled = carters < farmCost;
+            document.getElementById('boxing-button').disabled = carters < boxingCost;
+        }
+
+        function buyUpgrade(type) {
+            switch(type) {
+                case 'multiplier':
+                    if (carters >= multiplierCost) {
+                        carters -= multiplierCost;
+                        multiplier *= 2;
+                        multiplierCost *= 3;
+                    }
+                    break;
+                case 'autoclicker':
+                    if (carters >= autoClickerCost) {
+                        carters -= autoClickerCost;
+                        autoClickers++;
+                        autoClickerCost *= 1.5;
+                        createFloatingOrange();
+                    }
+                    break;
+                case 'farm':
+                    if (carters >= farmCost) {
+                        carters -= farmCost;
+                        farms++;
+                        farmCost *= 1.8;
+                    }
+                    break;
+                case 'boxing':
+                    if (carters >= boxingCost) {
+                        carters -= boxingCost;
+                        boxingClubs++;
+                        boxingCost *= 2.2;
+                    }
+                    break;
+            }
+            updateDisplay();
+        }
+
+        document.getElementById('carter-face').addEventListener('click', (e) => {
+            carters += multiplier;
+            createParticle(e.clientX, e.clientY);
+            updateDisplay();
+        });
+
+        setInterval(() => {
+            carters += autoClickers * 1;
+            carters += farms * 10;
+            carters += boxingClubs * 20;
+            updateDisplay();
+        }, 1000);
+
+        updateDisplay();
+    </script>
+</body>
+</html>
