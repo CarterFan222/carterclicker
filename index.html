@@ -41,14 +41,16 @@
         #carter-face {
             width: 180px;
             cursor: pointer;
-            transition: transform 0.1s;
-            margin-top: 50px;
-            z-index: 2;
+            transition: transform 0.1s ease-in-out;  /* Ensure smooth transition */
+            margin-top: 20px;
             position: relative;
+            z-index: 2;
+            left: 50%;
+            transform: translateX(-50%);  /* Keeps it centered */
         }
 
         #carter-face:active {
-            transform: scale(0.95);
+            transform: scale(1.05);  /* Only scale up, no translate */
         }
 
         .counter {
@@ -325,12 +327,26 @@
                     break;
             }
             updateDisplay();
+            saveProgress();
+        }
+
+        function saveProgress() {
+            localStorage.setItem('carters', carters);
+            localStorage.setItem('multiplier', multiplier);
+            localStorage.setItem('multiplierCost', multiplierCost);
+            localStorage.setItem('autoClickers', autoClickers);
+            localStorage.setItem('autoClickerCost', autoClickerCost);
+            localStorage.setItem('farms', farms);
+            localStorage.setItem('farmCost', farmCost);
+            localStorage.setItem('boxingClubs', boxingClubs);
+            localStorage.setItem('boxingCost', boxingCost);
         }
 
         document.getElementById('carter-face').addEventListener('click', (e) => {
             carters += multiplier;
             createParticle(e.clientX, e.clientY);
             updateDisplay();
+            saveProgress();
         });
 
         setInterval(() => {
@@ -338,6 +354,7 @@
             carters += farms * 10;
             carters += boxingClubs * 20;
             updateDisplay();
+            saveProgress();
         }, 1000);
 
         updateDisplay();
